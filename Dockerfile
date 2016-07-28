@@ -34,7 +34,4 @@ RUN /opt/bin/permissions.sh /var/lib/mysql/  \
 
 ENTRYPOINT ["/usr/bin/start"]
 
-# Will run as mysql user (27)
-USER 27
-
 CMD ["mysqld_safe"]
