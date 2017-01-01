@@ -23,13 +23,13 @@ COPY docker /
 # the value into the copied *.repo file instead
 RUN sed -i s:MARIA_VERSION:$MARIA_VERSION: /etc/yum.repos.d/MariaDB.repo
 
-RUN mkdir /var/log/mariadb
-
 # Now install from the edited /etc/yum.repos.d/MariaDB.repo file
-RUN yum install MariaDB-server -y
+RUN yum install -y \
+    MariaDB-server \
+    MariaDB-tokudb-engine
 
 RUN /opt/bin/permissions.sh /var/lib/mysql/  \
-    && /opt/bin/permissions.sh /var/log/mariadb/ \
+    && /opt/bin/permissions.sh /var/log/ \
     && /opt/bin/permissions.sh /var/run/
 
 ENTRYPOINT ["/usr/bin/start"]

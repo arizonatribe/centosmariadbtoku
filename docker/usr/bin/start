@@ -12,26 +12,29 @@ fi
 
 # Setup (recreate) the root user and (optionally) an additional non-root user
 if [ "$1" = 'mysqld_safe' ]; then
-	DATADIR="/var/lib/mysql"
+    BASE_DIR="/var/lib/mysql"
 
+    # See for more info: https://mariadb.com/kb/en/mariadb/enabling-tokudb/#check-for-transparent-hugepage-support-on-linux'
     TRANSPARENT_HUGE_PAGES="$(cat /sys/kernel/mm/transparent_hugepage/enabled)"
-    
     if [ "$TRANSPARENT_HUGE_PAGES" = '[always] madvise never' ]; then
-        echo >&2 'error: you must turn off Transparent HugePages on the host to run TokuDB'
-        echo >&2 'See for more info: https://mariadb.com/kb/en/mariadb/enabling-tokudb/#check-for-transparent-hugepage-support-on-linux'
-        exit 1
+        echo >&2 'Transparent HugePages must be turned off on the host to run TokuDB; if this container is running as priviledged it can do it for you: attempting . . . '
+
+        echo never > /sys/kernel/mm/transparent_hugepage/enabled
+        echo never > /sys/kernel/mm/transparent_hugepage/defrag
     fi
 
-    if [ ! -e "$DATADIR/.database_setup_complete" ]; then
+    # We don't want to run the following steps every time, so a flag file is used to prevent it from occurring on every launch
+    if [ ! -e "$BASE_DIR/.database_setup_complete" ]; then
+        # Root password is required
 		if [ -z "$MYSQL_ROOT_PASSWORD" -a -z "$MYSQL_ALLOW_EMPTY_PASSWORD" ]; then
 			echo >&2 'error: database is uninitialized and MYSQL_ROOT_PASSWORD not set'
 			echo >&2 '  Did you forget to add -e MYSQL_ROOT_PASSWORD=... ?'
 			exit 1
 		fi
 		
-        if [ ! -d "$DATADIR/mysql" ]; then
+        if [ ! -d "$BASE_DIR/mysql" ]; then
     		echo 'Running mysql_install_db ...'
-    		mysql_install_db --datadir="$DATADIR"
+    		mysql_install_db --user=mysql --datadir="$BASE_DIR"
     		echo 'Finished mysql_install_db'
 		fi
 		
@@ -62,14 +65,14 @@ if [ "$1" = 'mysqld_safe' ]; then
 		EOSQL
 
 		
-		if [ "$MYSQL_DATABASE" ]; then
+		if [ ! -z $MYSQL_DATABASE ]; then
 			echo "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\` ;" >> "$tempSqlFile"
 		fi
 		
-		if [ "$MYSQL_USER" -a "$MYSQL_PASSWORD" ]; then
+		if [ ! -z "$MYSQL_USER" ] && [ ! -z "$MYSQL_PASSWORD" ]; then
 			echo "CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD' ;" >> "$tempSqlFile"
 			
-			if [ "$MYSQL_DATABASE" ]; then
+			if [ ! -z $MYSQL_DATABASE ]; then
 				echo "GRANT ALL ON \`$MYSQL_DATABASE\`.* TO '$MYSQL_USER'@'%' ;" >> "$tempSqlFile"
 			fi
 		fi
@@ -78,10 +81,12 @@ if [ "$1" = 'mysqld_safe' ]; then
 		
 		set -- "$@" --init-file="$tempSqlFile"
 		
-	    # Make sure this isn't done on each iteration
-	    echo >> "$DATADIR/.database_setup_complete"
+	    # Make sure the steps we just performed aren't done each iteration
+	    echo >> "$BASE_DIR/.database_setup_complete"
 	fi
     
+    chown -R mysql:mysql "$BASE_DIR"
 fi
 
+echo "$@"
 exec "$@"
