@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+    echo "Must provide the database name"
+    exit 1
+fi
+if [[ ! $1 =~ ^[0-9a-zA-Z\$_]+$  ]]; then
+    echo "Invalid string format for database: Must be alphnumeric."
+    exit 2
+fi
+
+/usr/bin/mysqldump -u root -p$(echo $MYSQL_ROOT_PASSWORD) $1 > /db-exports/$1_schema.sql
+
+exit 0
+

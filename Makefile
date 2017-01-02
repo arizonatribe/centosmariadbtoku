@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 NAME = arizonatribe/centosmariadbtoku
-VERSION = 1.0.6
+VERSION = 1.0.7
 
 docker:
 	@docker build --rm=true -t $(NAME):$(VERSION) ./
