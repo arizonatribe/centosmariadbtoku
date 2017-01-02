@@ -9,7 +9,7 @@ if [ -z $2 ]; then
     exit 1
 fi
 
-if [[ $1 =~ ^[0-9a-zA-Z_]+$  ]]; then
+if [[ ! $1 =~ ^[0-9a-zA-Z_]+$  ]]; then
     echo "Invalid string format for username: Must be alphnumeric."
     exit 2
 fi

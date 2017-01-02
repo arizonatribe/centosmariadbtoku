@@ -4,7 +4,7 @@ if [ -z $1 ]; then
     echo "Must provide the database name, and name the .sql file <db name>_schema.sql"
     exit 1
 fi
-if [[ $1 =~ ^[0-9a-zA-Z\$_]+$  ]]; then
+if [[ ! $1 =~ ^[0-9a-zA-Z\$_]+$  ]]; then
     echo "Invalid string format for database: Must be alphnumeric."
     exit 2
 fi
