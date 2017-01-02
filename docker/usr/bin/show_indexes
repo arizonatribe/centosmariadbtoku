@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+    echo "Must provide the database name"
+    exit 1
+fi
+if [ -z $2 ]; then
+    echo "Must provide the table name"
+    exit 1
+fi
+
+mysqlshow -u root -p$(echo $MYSQL_ROOT_PASSWORD) --keys $1 $2
+
+exit 0
+

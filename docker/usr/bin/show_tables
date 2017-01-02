@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+    echo "Must provide the database name"
+    exit 1
+fi
+
+mysql -D $1 -u root -p$(echo $MYSQL_ROOT_PASSWORD) -e "show tables;"
+
+exit 0
+

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+    echo "Must provide the database name, and name the .sql file <db name>_schema.sql"
+    exit 1
+fi
+
+# Pass in the filename as 2nd param, otherwise its name is assumed to match the
+# db-name and be suffixed "_schema.sql"
+PATH=/db-imports/${2-$1_schema.sql}
+
+if [ ! -f "$PATH"  ]; then
+    echo "Import file $PATH does not exist"
+    exit 1
+fi
+
+mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) $1 < $PATH
+
+exit 0
+
