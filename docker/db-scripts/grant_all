@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+    echo "Must provide the database name"
+    exit 1
+fi
+if [[ $1 =~ ^[0-9a-zA-Z\$_]+$  ]]; then
+    echo "Invalid string format for database: Must be alphnumeric."
+    exit 2
+fi
+if [ -z $2 ]; then
+    echo "Must provide the username"
+    exit 1
+fi
+if [[ $2 =~ ^[0-9a-zA-Z_]+$  ]]; then
+    echo "Invalid string format for username: Must be alphnumeric."
+    exit 2
+fi
+
+mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) -e "grant all privileges on $1.* to '$2'@'%';"
+
+exit 0
+
