@@ -12,7 +12,7 @@ fi
 
 # Setup (recreate) the root user and (optionally) an additional non-root user
 if [ "$1" = 'mysqld_safe' ]; then
-    BASE_DIR="/var/lib/mysql"
+    BASE_DIR=${APP_WORKING_DIR-/var/lib/mysql}
 
     # See for more info: https://mariadb.com/kb/en/mariadb/enabling-tokudb/#check-for-transparent-hugepage-support-on-linux'
     TRANSPARENT_HUGE_PAGES="$(cat /sys/kernel/mm/transparent_hugepage/enabled)"

@@ -9,7 +9,7 @@ if [[ ! $1 =~ ^[0-9a-zA-Z\$_]+$  ]]; then
     exit 2
 fi
 
-mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) -e "create database if not exists $1;"
+/usr/bin/mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) -e "create database if not exists $1;"
 
 exit 0
 

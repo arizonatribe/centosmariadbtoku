@@ -17,7 +17,7 @@ if [[ ! $2 =~ ^[0-9a-zA-Z_]+$  ]]; then
     exit 2
 fi
 
-mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) -e "grant all privileges on $1.* to '$2'@'%';"
+/usr/bin/mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) -e "grant all privileges on $1.* to '$2'@'%';"
 
 exit 0
 

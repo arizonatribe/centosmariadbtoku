@@ -18,7 +18,7 @@ if [ ! -f "$PATH"  ]; then
     exit 1
 fi
 
-mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) $1 < $PATH
+/usr/bin/mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) $1 < $PATH
 
 exit 0
 

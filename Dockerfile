@@ -12,6 +12,9 @@ RUN yum -y clean all
 
 # Go to http://yum.mariadb.org to find the specific Centos7_amd64 version to use
 ARG MARIA_VERSION=10.0.25
+ENV APP_WORKING_DIR /var/lib/mysql
+
+WORKDIR ${APP_WORKING_DIR}
 
 # Volumes for importing, exporting and other general scripts
 VOLUME ["/db-imports", "/db-exports", "/db-scripts"]
@@ -31,7 +34,7 @@ RUN yum install -y \
     MariaDB-server \
     MariaDB-tokudb-engine
 
-RUN /opt/bin/permissions.sh /var/lib/mysql/  \
+RUN /opt/bin/permissions.sh ${APP_WORKING_DIR} \
     && /opt/bin/permissions.sh /var/log/ \
     && /opt/bin/permissions.sh /var/run/ \
     && /opt/bin/permissions.sh /db-imports \

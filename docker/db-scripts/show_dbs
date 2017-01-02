@@ -1,5 +1,5 @@
 #!/bin/bash
 
-mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) -e "show databases;"
+/usr/bin/mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) -e "show databases;"
 
 exit 0
