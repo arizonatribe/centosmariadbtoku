@@ -13,6 +13,9 @@ RUN yum -y clean all
 # Go to http://yum.mariadb.org to find the specific Centos7_amd64 version to use
 ARG MARIA_VERSION=10.0.25
 
+# Volumes for importing, exporting and other general scripts
+VOLUME ["/db-imports", "/db-exports", "/db-scripts"]
+
 # Standard MariaDB/MySQL port being exposed for use as a container that multiple applications can connect to
 EXPOSE 3306
 
@@ -30,7 +33,10 @@ RUN yum install -y \
 
 RUN /opt/bin/permissions.sh /var/lib/mysql/  \
     && /opt/bin/permissions.sh /var/log/ \
-    && /opt/bin/permissions.sh /var/run/
+    && /opt/bin/permissions.sh /var/run/ \
+    && /opt/bin/permissions.sh /db-imports \
+    && /opt/bin/permissions.sh /db-exports \
+    && /opt/bin/permissions.sh /db-scripts
 
 ENTRYPOINT ["/usr/bin/start"]
 

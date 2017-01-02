@@ -44,7 +44,7 @@ pass a command to override the default "optionless" `mysqld_safe` command, placi
 them at the end of the `docker run` command listed above, for example:
 
 ```bash
-docker run --name=centosmariadb -d --build-arg MARIA_VERSION=10.0.25 --volumes-from=mariadb-data -v ../my_db_scripts=/dbscripts -e MYSQL_ROOT_PASSWORD=<password> -p 3306:3306 centosmariadbtoku mysqld_safe --log-error=/var/log/mysql.err --pid-file=/var/run/mysqld.pid
+docker run --name=centosmariadb -d --build-arg MARIA_VERSION=10.0.25 --volumes-from=mariadb-data -v $PWD/logs=/var/log -e MYSQL_ROOT_PASSWORD=<password> -p 3306:3306 centosmariadbtoku mysqld_safe --log-error=/var/log/mysql.err --pid-file=/var/run/mysqld.pid
 ```
 These options are more easily committed to a `docker-compose.yml` file if they become this lengthy.
 The settings from the previous commands would appear in a `docker-compose.yml` file like this:
@@ -53,15 +53,11 @@ The settings from the previous commands would appear in a `docker-compose.yml` f
 version: '2'
 services:
   mariadb-data:
-    build: 
-      context: ./
-      args:
-        - MARIA_VERSION=10.0.25
-    image: arizonatribe/centosmariadbtoku:latest
+    image: busybox
     volumes:
       - /var/lib/mysql
-      - /var/log/mariadb
-    command: /bin/bash
+      - /var/log
+    command: echo Data volume for db
   mariadb:
     build: 
       context: ./
@@ -69,13 +65,13 @@ services:
         - MARIA_VERSION=10.1.13
     image: arizonatribe/centosmariadbtoku:latest
     container_name: centosmariadbtoku
+    env_file: .env
     volumes_from:
       - mariadb-data
     volumes:
-      - ../my_db_scripts=/dbscripts
+      - ./logs:/var/log
     ports:
       - 3306:3306
-    env_file: .env
 ```
 
 This file (if placed in the same directory as the Dockerfile, as indicated by the `build: ./` line)
@@ -107,10 +103,10 @@ Now you should be presented with a shell and you can log into your database:
 mysql --protocol=tcp -u root -pmyrootpassword
 ```
 
-Alternatively, if you have a database script to run, you can execute that script from inside this shell. The way you do that is letting this container know about the directory that contains those scripts on your host. You accomplish this by specifying a volume, which is simply a directory on your host that maps to a directory inside the container (see the `docker-compose` and `docker run` examples above which create a directory in the container called `/dbscripts` from a directory called `my_db_scripts/` on your host). If you have done this step, you can then execute a command like this from inside this container:
+Alternatively, if you have a database script to run, you can execute that script from inside this shell. The way you do that is letting this container know about the directory that contains those scripts on your host. You accomplish this by specifying a volume, which is simply a directory on your host that maps to a directory inside the container (see the `docker-compose` and `docker run`). If you have done this step, you can then execute a command like this from inside this container:
 
 ```bash
-source /dbscripts/mycustomscript.sh
+source /db-scripts/mycustomscript.sh
 ```
 
 # Environment variables
