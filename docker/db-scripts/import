@@ -18,7 +18,12 @@ if [ ! -f "$PATH"  ]; then
     exit 1
 fi
 
-/usr/bin/mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) $1 < $PATH
+# Optionally, you can import from a compressed *.sql.gz archive
+if [[ "$PATH" == *.sql.gz ]]; then
+    /usr/bin/gunzip < $PATH | /usr/bin/mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) $1
+else
+    /usr/bin/mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) $1 < $PATH
+fi
 
 exit 0
 

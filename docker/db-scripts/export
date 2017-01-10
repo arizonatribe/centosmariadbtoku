@@ -9,7 +9,12 @@ if [[ ! $1 =~ ^[0-9a-zA-Z\$_]+$  ]]; then
     exit 2
 fi
 
-/usr/bin/mysqldump -u root -p$(echo $MYSQL_ROOT_PASSWORD) $1 > /db-exports/$1_schema.sql
+# Optionally, you can compress the exported database into a gzipped file by passing the `-c`  `--compress` flag
+if [[ $2 = "--compress" || $2 == "-c" ]]; then
+    /usr/bin/mysqldump -u root -p$(echo $MYSQL_ROOT_PASSWORD) $1 | /usr/bin/gzip > /db-exports/$1_schema.sql.gz
+else
+    /usr/bin/mysqldump -u root -p$(echo $MYSQL_ROOT_PASSWORD) $1 > /db-exports/$1_schema.sql
+fi
 
 exit 0
 
