@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# This script accepts one or more arguments, but treats all args as possible
+# database names, joining them all into one space-separated string and
+# processing each string name in there as an existing database to import
+
+# For security sake, rely on the root password to be in an environment variable,
+# rather than hard-coded into a script or typed into a command line statement
+# if [ -z $MYSQL_ROOT_PASSWORD ]; then
+#     echo "You forgot to set the root password; please set the MYSQL_ROOT_PASSWORD environment variable"
+#     exit 1
+# fi
+
+# Pass in the database names
+if [ -z $1 ]; then
+    echo "If you don't pass in the name of the directory, /db-imports is assumed; attempting . . ."
+    SQL_FILE_DIR=$PWD
+fi
+
+SQL_FILE_DIR=${1-/db-imports}
+
+if [ ! -d $SQL_FILE_DIR ]; then
+    echo "$SQL_FILE_DIR is not a valid directory"
+    exit 1
+fi
+
+# Now, import the sql scripts
+for file in $SQL_FILE_DIR/*.sql.gz
+do
+    BASE=$(basename $file .sql.gz)
+    echo importing $BASE databse using $file
+    /db-scripts/import $BASE $file
+done
+
+echo "Finished importing databases"
+
+exit 0
