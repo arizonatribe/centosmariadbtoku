@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# The "token" that you use to post to Slack should be just a URL listed in your
+# team's account settings
+if [ -z $SLACK_URL ]; then
+    echo "You forgot to set the slack URL; please set the SLACK_URL environment variable"
+    exit 1
+fi
+
+timestamp() {
+    date +"%Y-%m-%-d %H:%M:%S"
+}
+
+HOST="`hostname`"
+USER=`id -un`
+SCRIPTNAME=${1-script}
+ICON_EMOJI=${SLACK_EMOJI-db}
+CHANNEL="#$(echo ${SLACK_CHANNEL-general} | tr -d '#')"
+
+content="\"attachments\": [{ \
+    \"mrkdwn_in\": [\"text\", \"fallback\"], \
+    \"fallback\": \"$SCRIPTNAME finished on \`$HOST\` ($(timestamp))\", \
+    \"text\": \"$SCRIPTNAME finished on :$HOST: ($(timestamp))\", \
+    \"fields\": [{ \
+        \"title\": \"User\", \"value\": \":$USER:\", \"short\": true \
+    }], \
+    \"color\": \"#F35A00\" \
+}]"
+
+curl -X POST \
+    --data-urlencode "payload={ \
+        \"channel\": \"$CHANNEL\", \
+        \"mrkdwn\": true, \
+        \"username\": \"$USER\", \
+        $content, \
+        \"icon_emoji\": \":$ICON_EMOJI:\" \
+    }" $SLACK_URL

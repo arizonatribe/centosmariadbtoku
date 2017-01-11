@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# This script accepts one or more arguments, but treats all args as possible
+# database names, joining them all into one space-separated string and
+# processing each string name in there as an existing database to export
+
+# For security sake, rely on the root password to be in an environment variable,
+# rather than hard-coded into a script or typed into a command line statement
+if [ -z $MYSQL_ROOT_PASSWORD ]; then
+    echo "You forgot to set the root password; please set the MYSQL_ROOT_PASSWORD environment variable"
+    exit 1
+fi
+
+# Pass in the database names
+if [ $# -eq 0  ]; then
+    echo "You forgot to specify the database(s) to export <comma, colon or space-separated list of existing databases>"
+    exit 1
+fi
+
+# Create one single, space-separated string of all database names from all arguments passed in
+DB_STRING=$(echo "$@" | tr ',' ' ' | tr ':' ' ' )
+
+# Split the space-separated string into an array of database names
+read -r -a DATABASE_NAMES <<< "$DB_STRING"
+
+for db in "${DATABASE_NAMES[@]}"
+do
+    echo "Exporting $db"
+
+    # Create the arhive from the actual databse
+    /usr/bin/mysqldump -u root -p$(echo $MYSQL_ROOT_PASSWORD) $db | \
+        /usr/bin/gzip > /db-imports/${db}.sql.gz && /db-scripts/notify ${db}.sql.gz
+done
+
+echo "Finished exporting databases"
+
+exit 0

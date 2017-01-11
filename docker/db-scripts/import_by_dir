@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# For security sake, rely on the root password to be in an environment variable,
+# rather than hard-coded into a script or typed into a command line statement
+if [ -z $MYSQL_ROOT_PASSWORD ]; then
+    echo "You forgot to set the root password; please set the MYSQL_ROOT_PASSWORD environment variable"
+    exit 1
+fi
+
+if [ -z $1 ]; then
+    echo "You didn't specifiy the database"
+    exit 1
+fi
+
+DB=$1
+
+if [ -z $2 ]; then
+    echo "If you don't pass in the name of the directory, /db-imports is assumed; attempting . . ."
+    SQL_FILE_DIR=$PWD
+fi
+
+SQL_FILE_DIR=${2-/db-imports}
+
+if [ ! -d $SQL_FILE_DIR ]; then
+    echo "$SQL_FILE_DIR is not a valid directory"
+    exit 1
+fi
+
+# First create the database, if needed
+/usr/bin/mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) -e "create database if not exists $DB;"
+
+# Now, import the sql scripts
+for file in $SQL_FILE_DIR/{*.sql,**/*.sql}
+do
+    /usr/bin/mysql -u root -p$(echo $MYSQL_ROOT_PASSWORD) $DB < $file && echo "$file imported"
+done
+
+echo "completed creation of the $DB database and schema, as well as restoring the data for all SQL files in the $SQL_FILE_DIR and subdirectories"
+
+exit 0
+
