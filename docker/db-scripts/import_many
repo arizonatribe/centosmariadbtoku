@@ -6,10 +6,10 @@
 
 # For security sake, rely on the root password to be in an environment variable,
 # rather than hard-coded into a script or typed into a command line statement
-# if [ -z $MYSQL_ROOT_PASSWORD ]; then
-#     echo "You forgot to set the root password; please set the MYSQL_ROOT_PASSWORD environment variable"
-#     exit 1
-# fi
+if [ -z $MYSQL_ROOT_PASSWORD ]; then
+    echo "You forgot to set the root password; please set the MYSQL_ROOT_PASSWORD environment variable"
+    exit 1
+fi
 
 # Pass in the database names
 if [ -z $1 ]; then

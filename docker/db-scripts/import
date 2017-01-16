@@ -11,7 +11,7 @@ fi
 
 # Pass in the filename as 2nd param, otherwise its name is assumed to match the
 # db-name and be suffixed "_schema.sql"
-PATH=/db-imports/${2-$1_schema.sql}
+PATH=${2-/db-imports/$1_schema.sql}
 
 if [ ! -f "$PATH"  ]; then
     echo "Import file $PATH does not exist"
