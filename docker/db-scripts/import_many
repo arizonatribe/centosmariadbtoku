@@ -29,7 +29,7 @@ for file in $SQL_FILE_DIR/*.sql.gz
 do
     BASE=$(basename $file .sql.gz)
     echo importing $BASE databse using $file
-    /db-scripts/import $BASE $file
+    /db-scripts/create_db $BASE && /db-scripts/import $BASE $file
 done
 
 echo "Finished importing databases"
